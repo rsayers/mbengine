@@ -1,6 +1,6 @@
 Class {
 	#name : #MBGame,
-	#superclass : #Object,
+	#superclass : #Morph,
 	#instVars : [
 		'screenWidth',
 		'screenHeight',
@@ -8,9 +8,8 @@ Class {
 		'player',
 		'raycastPrecision',
 		'map',
-		'window',
-		'renderer',
-		'running'
+		'running',
+		'process'
 	],
 	#pools : [
 		'SDL2Constants',
@@ -39,6 +38,35 @@ MBGame >> drawLineFrom: start to: end [
 	renderer drawLineX1: start x y1: start y x2: end x y2: end y.
 ]
 
+{ #category : #drawing }
+MBGame >> drawOn: canvas [ 
+
+	| rayAngle ray rayCos raySin wall distance wallHeight |
+	rayAngle := 60 - 30.
+
+	1 to: screenWidth do: [ :rayCount | 
+		ray := MBRay new.
+		ray position: player position.
+		rayCos := rayAngle degreesToRadians cos / raycastPrecision.
+		raySin := rayAngle degreesToRadians sin / raycastPrecision.
+		wall := 0.
+		[ wall = 0 ] whileTrue: [ 
+			ray position: ray position + (rayCos @ raySin).
+			wall := (map at: ray position y floor) at: (ray position x floor) ].
+
+		distance := player position distanceTo: ray position.
+		wallHeight := (self halfScreenHeight / distance) floor.
+		self drawColor: Color cyan.
+		self drawLineFrom: rayCount@0 to: rayCount@(self halfScreenHeight - wallHeight).
+		self drawColor: Color red.
+		self drawLineFrom: rayCount@(self halfScreenHeight - wallHeight) to: rayCount@(self halfScreenHeight + wallHeight).
+		self drawColor: Color green.
+		self drawLineFrom: rayCount@(self halfScreenHeight + wallHeight) to: rayCount@(self screenHeight).
+
+		rayAngle := rayAngle + self rayIncrementAngle ].
+
+]
+
 { #category : #'as yet unclassified' }
 MBGame >> halfScreenHeight [
 	^ self screenHeight / 2
@@ -47,18 +75,6 @@ MBGame >> halfScreenHeight [
 { #category : #'as yet unclassified' }
 MBGame >> halfScreenWidth [
 	^ self screenWidth / 2
-]
-
-{ #category : #accessing }
-MBGame >> initSDL [ 	
-	SDL2 initVideo.
-	window := SDL2 createWindow: 'Test Window'
-					x: SDL_WINDOWPOS_UNDEFINED
-					y: SDL_WINDOWPOS_UNDEFINED
-					width: 640
-					height: 480
-					flags: SDL_WINDOW_SHOWN.
-	renderer := window createDefaultRenderer.
 ]
 
 { #category : #initialization }
@@ -83,21 +99,6 @@ MBGame >> initialize [
 		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
 		       { 1. 1. 1. 1. 1. 1. 1. 1. 1. 1 } }.
 	self initSDL.
-]
-
-{ #category : #accessing }
-MBGame >> mainLoop [
-
-	| event |
-	running := true.
-	event := SDL_Event new.
-	[ running ] whileTrue: [ 
-		[ (SDL2 pollEvent: event) > 0 ] whileTrue:
-			[ self processEvent: event ]. 
-		self clearScreen.
-		self raycasting ]. 
-	renderer destroy.
-	window destroy
 ]
 
 { #category : #accessing }
@@ -145,11 +146,6 @@ MBGame >> pointsOnLineFrom: startPoint to: endPoint [
         y := y + dy.
     ].
     ^ points
-]
-
-{ #category : #accessing }
-MBGame >> processEvent: event [ 
-	event type = SDL_QUIT ifTrue: [ running := false ]
 ]
 
 { #category : #'as yet unclassified' }
