@@ -23,26 +23,12 @@ MBGame class >> cleanUp [
 	MBGame allInstancesDo: [ :x | x renderer destroy. x window destroy ]
 ]
 
-{ #category : #accessing }
-MBGame >> clearScreen [ 
-	renderer clear.
-]
-
-{ #category : #accessing }
-MBGame >> drawColor: color [ 
-	renderer drawColorR: (color red * 255) g:  (color green * 255) b: (color blue * 255) a: 255.
-]
-
-{ #category : #accessing }
-MBGame >> drawLineFrom: start to: end [
-	renderer drawLineX1: start x y1: start y x2: end x y2: end y.
-]
-
 { #category : #drawing }
 MBGame >> drawOn: canvas [ 
 
-	| rayAngle ray rayCos raySin wall distance wallHeight |
-	rayAngle := 60 - 30.
+	| rayAngle ray rayCos raySin wall distance wallHeight b|
+	b := [ 
+	rayAngle := self player halfFov.
 
 	1 to: screenWidth do: [ :rayCount | 
 		ray := MBRay new.
@@ -56,15 +42,13 @@ MBGame >> drawOn: canvas [
 
 		distance := player position distanceTo: ray position.
 		wallHeight := (self halfScreenHeight / distance) floor.
-		self drawColor: Color cyan.
-		self drawLineFrom: rayCount@0 to: rayCount@(self halfScreenHeight - wallHeight).
-		self drawColor: Color red.
-		self drawLineFrom: rayCount@(self halfScreenHeight - wallHeight) to: rayCount@(self halfScreenHeight + wallHeight).
-		self drawColor: Color green.
-		self drawLineFrom: rayCount@(self halfScreenHeight + wallHeight) to: rayCount@(self screenHeight).
+		canvas fillRectangle: (rayCount@0 extent: 1@(self halfScreenHeight - wallHeight)) color: Color cyan.
+		canvas fillRectangle: (rayCount@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: Color red.
+		canvas fillRectangle: (rayCount@(self halfScreenHeight + wallHeight) extent: 1@(self screenHeight)) color: Color green.
 
 		rayAngle := rayAngle + self rayIncrementAngle ].
-
+	] bench.
+	b inspect.
 ]
 
 { #category : #'as yet unclassified' }
@@ -79,7 +63,8 @@ MBGame >> halfScreenWidth [
 
 { #category : #initialization }
 MBGame >> initialize [
-
+	super initialize.
+	self bounds: (0@0 corner: 640@480).
 	screenWidth := 640.
 	screenHeight := 640.
 	renderDelay := 30.
@@ -98,7 +83,7 @@ MBGame >> initialize [
 		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
 		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
 		       { 1. 1. 1. 1. 1. 1. 1. 1. 1. 1 } }.
-	self initSDL.
+
 ]
 
 { #category : #accessing }
@@ -166,35 +151,6 @@ MBGame >> raycastPrecision: anObject [
 ]
 
 { #category : #accessing }
-MBGame >> raycasting [
-
-	| rayAngle ray rayCos raySin wall distance wallHeight |
-	rayAngle := 60 - 30.
-
-	1 to: screenWidth do: [ :rayCount | 
-		ray := MBRay new.
-		ray position: player position.
-		rayCos := rayAngle degreesToRadians cos / raycastPrecision.
-		raySin := rayAngle degreesToRadians sin / raycastPrecision.
-		wall := 0.
-		[ wall = 0 ] whileTrue: [ 
-			ray position: ray position + (rayCos @ raySin).
-			wall := (map at: ray position y floor) at: (ray position x floor) ].
-
-		distance := player position distanceTo: ray position.
-		wallHeight := (self halfScreenHeight / distance) floor.
-		self drawColor: Color cyan.
-		self drawLineFrom: rayCount@0 to: rayCount@(self halfScreenHeight - wallHeight).
-		self drawColor: Color red.
-		self drawLineFrom: rayCount@(self halfScreenHeight - wallHeight) to: rayCount@(self halfScreenHeight + wallHeight).
-		self drawColor: Color green.
-		self drawLineFrom: rayCount@(self halfScreenHeight + wallHeight) to: rayCount@(self screenHeight).
-
-		rayAngle := rayAngle + self rayIncrementAngle ].
-	renderer present.
-]
-
-{ #category : #accessing }
 MBGame >> renderDelay [
 
 	^ renderDelay
@@ -204,18 +160,6 @@ MBGame >> renderDelay [
 MBGame >> renderDelay: anObject [
 
 	renderDelay := anObject
-]
-
-{ #category : #accessing }
-MBGame >> renderer [
-
-	^ renderer
-]
-
-{ #category : #accessing }
-MBGame >> renderer: anObject [
-
-	renderer := anObject
 ]
 
 { #category : #accessing }
@@ -240,16 +184,4 @@ MBGame >> screenWidth [
 MBGame >> screenWidth: anObject [
 
 	screenWidth := anObject
-]
-
-{ #category : #accessing }
-MBGame >> window [
-
-	^ window
-]
-
-{ #category : #accessing }
-MBGame >> window: anObject [
-
-	window := anObject
 ]

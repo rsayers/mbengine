@@ -24,7 +24,7 @@ MBPlayer >> angle: anObject [
 { #category : #accessing }
 MBPlayer >> fov [
 
-	^ 60.
+	^ fov.
 ]
 
 { #category : #accessing }
@@ -36,7 +36,7 @@ MBPlayer >> fov: anObject [
 { #category : #accessing }
 MBPlayer >> halfFov [
 
-	^ fov / 2
+	^ fov // 2
 ]
 
 { #category : #accessing }
