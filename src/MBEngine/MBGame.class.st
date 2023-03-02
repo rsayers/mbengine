@@ -28,7 +28,7 @@ MBGame >> drawOn: canvas [
 
 	| rayAngle ray rayCos raySin wall distance wallHeight |
 
-	rayAngle := self player halfFov.
+	rayAngle := self player angle - self player halfFov.
 
 	1 to: screenWidth do: [ :rayCount | 
 		ray := MBRay new.
@@ -41,6 +41,7 @@ MBGame >> drawOn: canvas [
 			wall := (map at: ray position y floor) at: (ray position x floor) ].
 
 		distance := player position distanceTo: ray position.
+		distance := distance * (rayAngle - self player angle) degreesToRadians cos.
 		wallHeight := (self halfScreenHeight / distance) floor.
 		canvas fillRectangle: (rayCount@0 extent: 1@(self halfScreenHeight - wallHeight)) color: Color cyan.
 		canvas fillRectangle: (rayCount@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: Color red.
@@ -61,17 +62,20 @@ MBGame >> halfScreenWidth [
 
 { #category : #accessing }
 MBGame >> handleKeystroke: anEvent [
-    | keyValue |
-
+    | keyValue pCos pSin |
+	  pCos := (player angle degreesToRadians cos) * player moveSpeed.
+	pSin := (player angle degreesToRadians sin) * player moveSpeed.
+	
     keyValue := anEvent keyValue.
-    keyValue = 30 "up arrow"
-        ifTrue: [player position: player position - (0 @ 1)].
-    keyValue = 31 "down arrow"
-        ifTrue: [self position: self position + (0 @ 1)].
-    keyValue = 29 "right arrow"
-        ifTrue: [self position: self position + (1 @ 0)].
-    keyValue = 28 "left arrow"
-        ifTrue: [self position: self position - (1 @ 0)].
+
+    keyValue = $w asInteger
+        ifTrue: [player position: player position + (pCos@pSin)].
+    keyValue = $s asInteger "down arrow"
+        ifTrue: [player position: player position - (pCos@pSin)].
+    keyValue = $d asInteger "right arrow"
+        ifTrue: [self player angle: self player angle + self player rotationSpeed].
+    keyValue = $a asInteger "left arrow"
+        ifTrue: [self player angle: self player angle - self player rotationSpeed].
     self changed.
 ]
 
@@ -90,11 +94,12 @@ MBGame >> initialize [
 	super initialize.
 	self bounds: (0@0 corner: 640@480).
 	screenWidth := 640.
-	screenHeight := 640.
+	screenHeight := 480.
 	renderDelay := 30.
 	raycastPrecision := 64.
 	player := MBPlayer new.
 	player fov: 60.
+	player angle: 90.
 	player position: 2@2.
 	player moveSpeed: 0.5.
 	player rotationSpeed: 5.0.
