@@ -26,8 +26,8 @@ MBGame class >> cleanUp [
 { #category : #drawing }
 MBGame >> drawOn: canvas [ 
 
-	| rayAngle ray rayCos raySin wall distance wallHeight b|
-	b := [ 
+	| rayAngle ray rayCos raySin wall distance wallHeight |
+
 	rayAngle := self player halfFov.
 
 	1 to: screenWidth do: [ :rayCount | 
@@ -47,8 +47,6 @@ MBGame >> drawOn: canvas [
 		canvas fillRectangle: (rayCount@(self halfScreenHeight + wallHeight) extent: 1@(self screenHeight)) color: Color green.
 
 		rayAngle := rayAngle + self rayIncrementAngle ].
-	] bench.
-	b inspect.
 ]
 
 { #category : #'accessing - computed' }
@@ -59,6 +57,32 @@ MBGame >> halfScreenHeight [
 { #category : #'accessing - computed' }
 MBGame >> halfScreenWidth [
 	^ self screenWidth / 2
+]
+
+{ #category : #accessing }
+MBGame >> handleKeystroke: anEvent [
+    | keyValue |
+
+    keyValue := anEvent keyValue.
+    keyValue = 30 "up arrow"
+        ifTrue: [player position: player position - (0 @ 1)].
+    keyValue = 31 "down arrow"
+        ifTrue: [self position: self position + (0 @ 1)].
+    keyValue = 29 "right arrow"
+        ifTrue: [self position: self position + (1 @ 0)].
+    keyValue = 28 "left arrow"
+        ifTrue: [self position: self position - (1 @ 0)].
+    self changed.
+]
+
+{ #category : #accessing }
+MBGame >> handlesMouseDown: anEvent [
+    ^ true
+]
+
+{ #category : #accessing }
+MBGame >> handlesMouseOver: anEvent [
+    ^ true
 ]
 
 { #category : #initialization }
@@ -72,6 +96,8 @@ MBGame >> initialize [
 	player := MBPlayer new.
 	player fov: 60.
 	player position: 2@2.
+	player moveSpeed: 0.5.
+	player rotationSpeed: 5.0.
 	map := { 
 		       { 1. 1. 1. 1. 1. 1. 1. 1. 1. 1 }.
 		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
@@ -96,6 +122,11 @@ MBGame >> map [
 MBGame >> map: anObject [
 
 	map := anObject
+]
+
+{ #category : #accessing }
+MBGame >> mouseEnter: anEvent [
+    anEvent hand newKeyboardFocus: self
 ]
 
 { #category : #accessing }

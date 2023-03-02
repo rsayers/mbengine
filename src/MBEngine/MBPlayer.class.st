@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'fov',
 		'position',
-		'angle'
+		'angle',
+		'rotationSpeed',
+		'moveSpeed'
 	],
 	#category : #MBEngine
 }
@@ -40,6 +42,18 @@ MBPlayer >> halfFov [
 ]
 
 { #category : #accessing }
+MBPlayer >> moveSpeed [
+
+	^ moveSpeed
+]
+
+{ #category : #accessing }
+MBPlayer >> moveSpeed: anObject [
+
+	moveSpeed := anObject
+]
+
+{ #category : #accessing }
 MBPlayer >> position [
 
 	^ position
@@ -49,4 +63,16 @@ MBPlayer >> position [
 MBPlayer >> position: anObject [
 
 	position := anObject
+]
+
+{ #category : #accessing }
+MBPlayer >> rotationSpeed [
+
+	^ rotationSpeed
+]
+
+{ #category : #accessing }
+MBPlayer >> rotationSpeed: anObject [
+
+	rotationSpeed := anObject
 ]
