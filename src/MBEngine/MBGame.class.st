@@ -51,12 +51,12 @@ MBGame >> drawOn: canvas [
 	b inspect.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing - computed' }
 MBGame >> halfScreenHeight [
 	^ self screenHeight / 2
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing - computed' }
 MBGame >> halfScreenWidth [
 	^ self screenWidth / 2
 ]
@@ -110,7 +110,7 @@ MBGame >> player: anObject [
 	player := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing - geometry' }
 MBGame >> pointsOnLineFrom: startPoint to: endPoint [
     | x1 y1 x2 y2 dx dy steps x y points |
     x1 := startPoint x.
@@ -133,7 +133,7 @@ MBGame >> pointsOnLineFrom: startPoint to: endPoint [
     ^ points
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing - computed' }
 MBGame >> rayIncrementAngle [
 	^ self player fov / self screenWidth 
 ]
