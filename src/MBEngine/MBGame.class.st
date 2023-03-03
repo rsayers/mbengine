@@ -23,6 +23,15 @@ MBGame class >> cleanUp [
 	MBGame allInstancesDo: [ :x | x renderer destroy. x window destroy ]
 ]
 
+{ #category : #cleanup }
+MBGame class >> menuOn: aBuilder [
+	<worldMenu>
+	(aBuilder item: #'Run Game')
+		order: 100;
+		help: 'Run Game';
+		action: [ MBGame new openInWindow ]
+]
+
 { #category : #drawing }
 MBGame >> drawOn: canvas [ 
 
@@ -60,23 +69,28 @@ MBGame >> halfScreenWidth [
 	^ self screenWidth / 2
 ]
 
-{ #category : #accessing }
+{ #category : #'event handling' }
 MBGame >> handleKeystroke: anEvent [
-    | keyValue pCos pSin |
-	  pCos := (player angle degreesToRadians cos) * player moveSpeed.
+    | keyValue pCos pSin newPosition |
+	 
+	pCos := (player angle degreesToRadians cos) * player moveSpeed.
 	pSin := (player angle degreesToRadians sin) * player moveSpeed.
+	newPosition := player position.
 	
     keyValue := anEvent keyValue.
 
     keyValue = $w asInteger
-        ifTrue: [player position: player position + (pCos@pSin)].
+        ifTrue: [newPosition := player position + (pCos@pSin)].
     keyValue = $s asInteger "down arrow"
-        ifTrue: [player position: player position - (pCos@pSin)].
+        ifTrue: [newPosition :=  player position - (pCos@pSin)].
     keyValue = $d asInteger "right arrow"
         ifTrue: [self player angle: self player angle + self player rotationSpeed].
     keyValue = $a asInteger "left arrow"
         ifTrue: [self player angle: self player angle - self player rotationSpeed].
-    self changed.
+
+	((map at: newPosition x floor) at: newPosition y floor) = 0 ifTrue: [ player position: newPosition ].
+    self changed. 
+
 ]
 
 { #category : #accessing }
