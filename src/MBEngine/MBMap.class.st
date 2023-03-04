@@ -4,14 +4,33 @@ Class {
 	#instVars : [
 		'mapData',
 		'width',
-		'height'
+		'height',
+		'game'
 	],
 	#category : #MBEngine
 }
 
 { #category : #accessing }
 MBMap >> at: aPoint [ 
-	^ mapData at: (aPoint y floor) * width + (aPoint x floor).
+	^ mapData at: (aPoint y floor) * width + (aPoint x floor) ifAbsent:[0].
+]
+
+{ #category : #accessing }
+MBMap >> at: aPoint put: aValue [
+	mapData at: (aPoint y floor) * width + (aPoint x floor) ifAbsent: [^true].
+	^ mapData at: ((aPoint y floor) * width + (aPoint x floor)) put: aValue.
+]
+
+{ #category : #accessing }
+MBMap >> game [
+
+	^ game
+]
+
+{ #category : #accessing }
+MBMap >> game: anObject [
+
+	game := anObject
 ]
 
 { #category : #accessing }

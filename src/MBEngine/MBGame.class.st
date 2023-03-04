@@ -35,7 +35,7 @@ MBGame class >> menuOn: aBuilder [
 { #category : #drawing }
 MBGame >> drawOn: canvas [ 
 
-	| rayAngle ray rayCos raySin wall distance wallHeight |
+	| rayAngle ray rayCos raySin wall distance wallHeight wallColor |
 
 	rayAngle := self player angle - self player halfFov.
 
@@ -51,9 +51,12 @@ MBGame >> drawOn: canvas [
 
 		distance := player position distanceTo: ray position.
 		distance := distance * (rayAngle - self player angle) degreesToRadians cos.
+		wallColor := Color red.
+		
 		wallHeight := (self halfScreenHeight / distance) floor.
+		(distance floor) timesRepeat: [ wallColor := wallColor darker ].
 		canvas fillRectangle: (rayCount@0 extent: 1@(self halfScreenHeight - wallHeight)) color: Color cyan.
-		canvas fillRectangle: (rayCount@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: Color red.
+		canvas fillRectangle: (rayCount@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: wallColor.
 		canvas fillRectangle: (rayCount@(self halfScreenHeight + wallHeight) extent: 1@(self screenHeight)) color: Color green.
 
 		rayAngle := rayAngle + self rayIncrementAngle ].
@@ -104,11 +107,13 @@ MBGame >> handlesMouseOver: anEvent [
 ]
 
 { #category : #initialization }
-MBGame >> initialize [
+MBGame >> initialize [ 
+   | editor |
 	super initialize.
-	self bounds: (0@0 corner: 640@480).
+	
 	screenWidth := 640.
 	screenHeight := 480.
+	self bounds: (0@0 corner: screenWidth@screenHeight).
 	renderDelay := 30.
 	raycastPrecision := 64.
 	player := MBPlayer new.
@@ -131,6 +136,13 @@ MBGame >> initialize [
 	        1. 0. 0. 0. 0. 0. 0. 0. 0. 1.
 	        1. 0. 0. 0. 0. 0. 0. 0. 0. 1.
 	        1. 1. 1. 1. 1. 1. 1. 1. 1. 1 }).
+	
+	map game: self.
+	
+	editor := MBMapEditor new.
+	editor load: map.
+	editor openInWindow.
+	
 
 ]
 
