@@ -47,7 +47,7 @@ MBGame >> drawOn: canvas [
 		wall := 0.
 		[ wall = 0 ] whileTrue: [ 
 			ray position: ray position + (rayCos @ raySin).
-			wall := (map at: ray position y floor) at: (ray position x floor) ].
+			wall := map at: (ray position y floor)@(ray position x floor) ].
 
 		distance := player position distanceTo: ray position.
 		distance := distance * (rayAngle - self player angle) degreesToRadians cos.
@@ -88,7 +88,7 @@ MBGame >> handleKeystroke: anEvent [
     keyValue = $a asInteger "left arrow"
         ifTrue: [self player angle: self player angle - self player rotationSpeed].
 
-	((map at: newPosition x floor) at: newPosition y floor) = 0 ifTrue: [ player position: newPosition ].
+	(map at: newPosition) = 0 ifTrue: [ player position: newPosition ].
     self changed. 
 
 ]
@@ -117,17 +117,20 @@ MBGame >> initialize [
 	player position: 2@2.
 	player moveSpeed: 0.5.
 	player rotationSpeed: 5.0.
-	map := { 
-		       { 1. 1. 1. 1. 1. 1. 1. 1. 1. 1 }.
-		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
-		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
-		       { 1. 0. 0. 1. 1. 0. 1. 0. 0. 1 }.
-		       { 1. 0. 0. 1. 0. 0. 1. 0. 0. 1 }.
-		       { 1. 0. 0. 1. 0. 0. 1. 0. 0. 1 }.
-		       { 1. 0. 0. 1. 0. 1. 1. 0. 0. 1 }.
-		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
-		       { 1. 0. 0. 0. 0. 0. 0. 0. 0. 1 }.
-		       { 1. 1. 1. 1. 1. 1. 1. 1. 1. 1 } }.
+	map := MBMap new.
+	map width: 10.
+	map height: 10.
+	map mapData: (OrderedCollection newFrom: { 
+	        1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+	        1. 0. 0. 0. 0. 0. 0. 0. 0. 1.
+	        1. 0. 0. 0. 0. 0. 0. 0. 0. 1.
+	        1. 0. 0. 1. 1. 0. 1. 0. 0. 1.
+	        1. 0. 0. 1. 0. 0. 1. 0. 0. 1.
+	        1. 0. 0. 1. 0. 0. 1. 0. 0. 1.
+	        1. 0. 0. 1. 0. 1. 1. 0. 0. 1.
+	        1. 0. 0. 0. 0. 0. 0. 0. 0. 1.
+	        1. 0. 0. 0. 0. 0. 0. 0. 0. 1.
+	        1. 1. 1. 1. 1. 1. 1. 1. 1. 1 }).
 
 ]
 
