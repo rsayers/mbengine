@@ -9,7 +9,8 @@ Class {
 		'raycastPrecision',
 		'map',
 		'running',
-		'process'
+		'process',
+		'texture'
 	],
 	#category : #MBEngine
 }
@@ -29,10 +30,9 @@ MBGame class >> menuOn: aBuilder [
 ]
 
 { #category : #drawing }
-MBGame >> drawOn: canvas [ 
+MBGame >> drawOn: canvas [
 
-	| rayAngle ray rayCos raySin wall distance wallHeight wallColor rc offset|
-
+	| rayAngle ray rayCos raySin wall distance wallHeight wallColor texX scaledCol |
 	super drawOn: canvas.
 	rayAngle := self player angle - self player halfFov.
 
@@ -44,23 +44,45 @@ MBGame >> drawOn: canvas [
 		wall := 0.
 		[ wall = 0 ] whileTrue: [ 
 			ray position: ray position + (rayCos @ raySin).
-			wall := map at: (ray position y floor)@(ray position x floor) ].
+			wall := map at: ray position y floor @ ray position x floor ].
 
 		distance := player position distanceTo: ray position.
-		distance := distance * (rayAngle - self player angle) degreesToRadians cos.
+		distance := distance
+		            * (rayAngle - self player angle) degreesToRadians cos.
 		wallColor := Color red.
-		
+
 		wallHeight := (self halfScreenHeight / distance) floor.
-		(distance floor) timesRepeat: [ wallColor := wallColor darker ].
-		rc := rayCount.
-		canvas translateBy: (owner bounds origin + (0@30)) during: [ :c | 
-		c fillRectangle: (rc@0 extent: 1@(self halfScreenHeight - wallHeight)) color: Color cyan.
-		c fillRectangle: (rc@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: wallColor.
-		c fillRectangle: (rc@(self halfScreenHeight + wallHeight) extent: 1@(self screenHeight)) color: Color green].
+		distance floor timesRepeat: [ wallColor := wallColor darker ].
+		texX := ((32 * (ray position x + ray position y)) % 32) asInteger.
+		scaledCol := self drawTexture: rayCount texX: texX wallHeight: wallHeight.
+		canvas translateBy: owner bounds origin + (3 @ 30) during: [ :c | 
+			
+			c
+				fillRectangle:
+				(rayCount @ 0 extent: 1 @ (self halfScreenHeight - wallHeight))
+				color: Color cyan.
 
-		rayAngle := rayAngle + self rayIncrementAngle ].
-	
+			c drawImage: scaledCol at: rayCount@(self halfScreenHeight - wallHeight).
+			
+		"	c
+				fillRectangle:
+					(rayCount @ (self halfScreenHeight - wallHeight) extent:
+						 1 @ (self halfScreenHeight + wallHeight))
+				color: wallColor."
+			c
+				fillRectangle:
+					(rayCount @ (self halfScreenHeight + wallHeight) extent:
+						 1 @ self screenHeight)
+				color: Color green ].
 
+		rayAngle := rayAngle + self rayIncrementAngle ]
+]
+
+{ #category : #'as yet unclassified' }
+MBGame >> drawTexture: x texX: texX wallHeight: wallHeight [
+	| tmp |
+	tmp := texture scaledToSize: wallHeight@wallHeight*2.
+	^ tmp copy: ((texX)@0 corner: (texX+1)@(wallHeight*2)).
 ]
 
 { #category : #'accessing - computed' }
@@ -140,9 +162,8 @@ MBGame >> initialize [
 	
 	map game: self.
 	
-	editor := MBMapEditor new.
-	editor load: map.
-	editor openInWindow.
+	texture := ImageReadWriter formFromFileNamed: 'c:\Users\rsaye\brick.png'.
+	
 	
 
 ]
