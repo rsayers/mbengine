@@ -11,10 +11,6 @@ Class {
 		'running',
 		'process'
 	],
-	#pools : [
-		'SDL2Constants',
-		'SDL2Types'
-	],
 	#category : #MBEngine
 }
 
@@ -35,8 +31,9 @@ MBGame class >> menuOn: aBuilder [
 { #category : #drawing }
 MBGame >> drawOn: canvas [ 
 
-	| rayAngle ray rayCos raySin wall distance wallHeight wallColor |
+	| rayAngle ray rayCos raySin wall distance wallHeight wallColor rc offset|
 
+	super drawOn: canvas.
 	rayAngle := self player angle - self player halfFov.
 
 	1 to: screenWidth do: [ :rayCount | 
@@ -55,11 +52,15 @@ MBGame >> drawOn: canvas [
 		
 		wallHeight := (self halfScreenHeight / distance) floor.
 		(distance floor) timesRepeat: [ wallColor := wallColor darker ].
-		canvas fillRectangle: (rayCount@0 extent: 1@(self halfScreenHeight - wallHeight)) color: Color cyan.
-		canvas fillRectangle: (rayCount@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: wallColor.
-		canvas fillRectangle: (rayCount@(self halfScreenHeight + wallHeight) extent: 1@(self screenHeight)) color: Color green.
+		rc := rayCount.
+		canvas translateBy: (owner bounds origin + (0@30)) during: [ :c | 
+		c fillRectangle: (rc@0 extent: 1@(self halfScreenHeight - wallHeight)) color: Color cyan.
+		c fillRectangle: (rc@(self halfScreenHeight - wallHeight) extent:  1@(self halfScreenHeight + wallHeight)) color: wallColor.
+		c fillRectangle: (rc@(self halfScreenHeight + wallHeight) extent: 1@(self screenHeight)) color: Color green].
 
 		rayAngle := rayAngle + self rayIncrementAngle ].
+	
+
 ]
 
 { #category : #'accessing - computed' }
@@ -113,7 +114,7 @@ MBGame >> initialize [
 	
 	screenWidth := 640.
 	screenHeight := 480.
-	self bounds: (0@0 corner: screenWidth@screenHeight).
+	self extent: screenWidth@screenHeight.
 	renderDelay := 30.
 	raycastPrecision := 64.
 	player := MBPlayer new.
