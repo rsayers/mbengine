@@ -53,8 +53,7 @@ MBGame >> drawOn: canvas [
 
 		wallHeight := (self halfScreenHeight / distance) floor.
 		distance floor timesRepeat: [ wallColor := wallColor darker ].
-		texX := ((32 * (ray position x + ray position y)) % 32) asInteger.
-		scaledCol := self drawTexture: rayCount texX: texX wallHeight: wallHeight.
+		scaledCol := texture getCol: (ray position) wallHeight: wallHeight.
 		canvas translateBy: owner bounds origin + (3 @ 30) during: [ :c | 
 			
 			c
@@ -131,7 +130,6 @@ MBGame >> handlesMouseOver: anEvent [
 
 { #category : #initialization }
 MBGame >> initialize [ 
-   | editor |
 	super initialize.
 	
 	screenWidth := 640.
@@ -162,7 +160,7 @@ MBGame >> initialize [
 	
 	map game: self.
 	
-	texture := ImageReadWriter formFromFileNamed: 'c:\Users\rsaye\brick.png'.
+	texture := MBTexture new load: '/Users/rsayers/Desktop/brick.png'.
 	
 	
 
